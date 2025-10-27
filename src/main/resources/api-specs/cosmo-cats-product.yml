@@ -1,0 +1,168 @@
+openapi: 3.0.3
+info:
+  title: Cosmo Cats Product API
+  version: 1.0.0
+  description: CRUD для продуктів інтергалактичного маркетплейсу
+servers:
+  - url: http://localhost:8080
+paths:
+  /api/products:
+    get:
+      summary: Список продуктів
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductDto'
+    post:
+      summary: Створити продукт
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductDto'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDto'
+        '400':
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /api/products/{id}:
+    get:
+      summary: Отримати продукт за ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDto'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+    put:
+      summary: Оновити продукт
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductDto'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDto'
+        '400':
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+    delete:
+      summary: Видалити продукт
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: No Content
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+components:
+  schemas:
+    ProductDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          nullable: true
+        name:
+          type: string
+          minLength: 3
+          maxLength: 80
+          description: Містить космічний термін (star, galaxy, comet, nebula, asteroid)
+        description:
+          type: string
+          maxLength: 500
+          nullable: true
+        price:
+          type: number
+          format: double
+          minimum: 0.01
+        currency:
+          type: string
+          pattern: '^[A-Z]{3}$'
+          example: USD
+        categoryId:
+          type: string
+      required: [name, price, currency, categoryId]
+    ProblemDetail:
+      type: object
+      description: RFC 9457 Problem Details
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              field: { type: string }
+              rejectedValue: {}
+              message: { type: string }
