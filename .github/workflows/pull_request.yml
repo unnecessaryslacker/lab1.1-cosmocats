@@ -1,0 +1,50 @@
+name: Build and Test Coverage (Maven)
+
+on:
+  pull_request:
+    branches:
+      - main
+      - '**'
+
+jobs:
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
+
+      - name: Build & Test (Maven)
+        run: mvn -B -ntp clean verify
+
+      # (опционально) Сохранить jar-ник, чтобы скачать с Actions
+      - name: Upload app jar
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-jar
+          path: target/*.jar
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-coverage-report
+          path: |
+            target/site/jacoco/index.html
+            target/site/jacoco/*    # ресурсы отчёта (css/js)
+
+      - name: Upload test logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: target/surefire-reports/**
