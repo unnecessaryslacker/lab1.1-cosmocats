@@ -12,10 +12,10 @@
     <java.version>21</java.version>
     <spring-boot.version>3.3.3</spring-boot.version>
     <mapstruct.version>1.5.5.Final</mapstruct.version>
-
-    <!-- Coverage target for service & web packages -->
-    <coverage.min>0.80</coverage.min>
     <jacoco.version>0.8.11</jacoco.version>
+    <coverage.min>0.80</coverage.min>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
 
   <dependencyManagement>
@@ -31,7 +31,6 @@
   </dependencyManagement>
 
   <dependencies>
-    <!-- Web & validation -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
@@ -40,8 +39,6 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-validation</artifactId>
     </dependency>
-
-    <!-- MapStruct -->
     <dependency>
       <groupId>org.mapstruct</groupId>
       <artifactId>mapstruct</artifactId>
@@ -53,22 +50,16 @@
       <version>${mapstruct.version}</version>
       <scope>provided</scope>
     </dependency>
-
-    <!-- Lombok -->
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
       <optional>true</optional>
     </dependency>
-
-    <!-- Swagger UI -->
     <dependency>
       <groupId>org.springdoc</groupId>
       <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
       <version>2.6.0</version>
     </dependency>
-
-    <!-- Tests -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
@@ -78,13 +69,12 @@
 
   <build>
     <plugins>
-      <!-- Spring Boot -->
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+        <version>${spring-boot.version}</version>
       </plugin>
 
-      <!-- Compiler + annotation processors -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -106,7 +96,6 @@
         </configuration>
       </plugin>
 
-      <!-- Unit tests -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
@@ -123,7 +112,6 @@
         </configuration>
       </plugin>
 
-      <!-- (Optional) Integration tests: name files *IT.java to run them -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
@@ -146,21 +134,17 @@
         </executions>
       </plugin>
 
-      <!-- JaCoCo (checks only service & web packages) -->
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
         <version>${jacoco.version}</version>
         <executions>
-          <!-- attach agent for unit tests -->
           <execution>
             <id>prepare-agent</id>
             <goals>
               <goal>prepare-agent</goal>
             </goals>
           </execution>
-
-          <!-- generate HTML report -->
           <execution>
             <id>report</id>
             <phase>verify</phase>
@@ -168,8 +152,6 @@
               <goal>report</goal>
             </goals>
           </execution>
-
-          <!-- enforce coverage -->
           <execution>
             <id>check-coverage</id>
             <phase>verify</phase>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ErrorHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">market</a> &gt; <a href="index.source.html" class="el_package">com.cosmocats.market.web</a> &gt; <span class="el_source">ErrorHandler.java</span></div><h1>ErrorHandler.java</h1><pre class="source lang-java linenums">package com.cosmocats.market.web;
+
+import jakarta.validation.ConstraintViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
+import org.springframework.validation.BindException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
+
+import java.net.URI;
+import java.util.*;
+
+@ControllerAdvice
+<span class="fc" id="L16">public class ErrorHandler {</span>
+
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  ProblemDetail onInvalidBody(MethodArgumentNotValidException ex) {
+<span class="fc" id="L20">    ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, &quot;Request body validation failed&quot;);</span>
+<span class="fc" id="L21">    pd.setType(URI.create(&quot;https://api.cosmocats/errors/validation&quot;));</span>
+<span class="fc" id="L22">    pd.setTitle(&quot;Bad Request&quot;);</span>
+<span class="fc" id="L23">    pd.setProperty(&quot;errors&quot;, ex.getBindingResult().getFieldErrors().stream()</span>
+<span class="fc" id="L24">        .map(fe -&gt; Map.of(</span>
+<span class="fc" id="L25">            &quot;field&quot;, fe.getField(),</span>
+<span class="fc" id="L26">            &quot;rejectedValue&quot;, Optional.ofNullable(fe.getRejectedValue()).orElse(&quot;null&quot;),</span>
+<span class="fc" id="L27">            &quot;message&quot;, fe.getDefaultMessage()))</span>
+<span class="fc" id="L28">        .toList());</span>
+<span class="fc" id="L29">    return pd;</span>
+  }
+
+  @ExceptionHandler({BindException.class, ConstraintViolationException.class})
+  ProblemDetail onBind(Exception ex) {
+<span class="nc" id="L34">    ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());</span>
+<span class="nc" id="L35">    pd.setType(URI.create(&quot;https://api.cosmocats/errors/validation&quot;));</span>
+<span class="nc" id="L36">    pd.setTitle(&quot;Bad Request&quot;);</span>
+<span class="nc" id="L37">    return pd;</span>
+  }
+
+  @ExceptionHandler(NoSuchElementException.class)
+  ProblemDetail notFound(NoSuchElementException ex) {
+<span class="fc" id="L42">    ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());</span>
+<span class="fc" id="L43">    pd.setType(URI.create(&quot;https://api.cosmocats/errors/not-found&quot;));</span>
+<span class="fc" id="L44">    pd.setTitle(&quot;Not Found&quot;);</span>
+<span class="fc" id="L45">    return pd;</span>
+  }
+
+  @ExceptionHandler(NoResourceFoundException.class)
+  ProblemDetail notFoundPath(NoResourceFoundException ex) {
+<span class="nc" id="L50">    ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, &quot;No such path&quot;);</span>
+<span class="nc" id="L51">    pd.setType(URI.create(&quot;https://api.cosmocats/errors/not-found&quot;));</span>
+<span class="nc" id="L52">    pd.setTitle(&quot;Not Found&quot;);</span>
+<span class="nc" id="L53">    return pd;</span>
+  }
+
+  @ExceptionHandler(Exception.class)
+  ProblemDetail generic(Exception ex) {
+<span class="nc" id="L58">    ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, &quot;Unexpected error&quot;);</span>
+<span class="nc" id="L59">    pd.setType(URI.create(&quot;https://api.cosmocats/errors/internal&quot;));</span>
+<span class="nc" id="L60">    pd.setTitle(&quot;Internal Server Error&quot;);</span>
+<span class="nc" id="L61">    return pd;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

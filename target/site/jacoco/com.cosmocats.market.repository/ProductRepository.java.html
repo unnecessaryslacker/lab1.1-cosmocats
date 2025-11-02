@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProductRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">market</a> &gt; <a href="index.source.html" class="el_package">com.cosmocats.market.repository</a> &gt; <span class="el_source">ProductRepository.java</span></div><h1>ProductRepository.java</h1><pre class="source lang-java linenums">package com.cosmocats.market.repository;
+
+import com.cosmocats.market.domain.Product;
+import org.springframework.stereotype.Repository;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.UUID;
+
+@Repository
+<span class="fc" id="L11">public class ProductRepository {</span>
+<span class="fc" id="L12">  private final Map&lt;UUID, Product&gt; db = new ConcurrentHashMap&lt;&gt;();</span>
+
+<span class="nc" id="L14">  public List&lt;Product&gt; findAll() { return new ArrayList&lt;&gt;(db.values()); }</span>
+<span class="nc" id="L15">  public Optional&lt;Product&gt; findById(UUID id) { return Optional.ofNullable(db.get(id)); }</span>
+  public Product save(Product p) {
+<span class="pc bpc" id="L17" title="1 of 2 branches missed.">    UUID id = p.id() != null ? p.id() : UUID.randomUUID();</span>
+<span class="fc" id="L18">    Product withId = new Product(id, p.name(), p.description(), p.price(), p.currency(), p.categoryId());</span>
+<span class="fc" id="L19">    db.put(id, withId);</span>
+<span class="fc" id="L20">    return withId;</span>
+  }
+<span class="nc bnc" id="L22" title="All 2 branches missed.">  public boolean deleteById(UUID id) { return db.remove(id) != null; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
