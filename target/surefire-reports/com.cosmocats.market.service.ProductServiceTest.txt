@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: com.cosmocats.market.service.ProductServiceTest
--------------------------------------------------------------------------------
-Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.912 s -- in com.cosmocats.market.service.ProductServiceTest
