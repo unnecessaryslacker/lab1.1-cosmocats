@@ -1,3 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/cosmocats
+    username: postgres
+    password: Juice999wrld!
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+
 feature:
   cosmoCats:
     enabled: true
