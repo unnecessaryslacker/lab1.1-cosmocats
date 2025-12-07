@@ -1,0 +1,5 @@
+feature:
+  cosmoCats:
+    enabled: true
+  kittyProducts:
+    enabled: false
