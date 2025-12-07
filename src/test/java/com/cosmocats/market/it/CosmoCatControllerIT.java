@@ -18,7 +18,7 @@ class CosmoCatControllerIT {
 
     @Test
     void getCosmoCats_enabled_returns200() throws Exception {
-        mvc.perform(get("/api/v1/cosmo-cats"))//API versioning
+        mvc.perform(get("/api/v1/cosmo-cats")) //versioning
                 .andExpect(status().isOk());
     }
 }

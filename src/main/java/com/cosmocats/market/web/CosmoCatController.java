@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1") //API versioning
+@RequestMapping("/api/v1") // add API versioning
 public class CosmoCatController {
 
     private final CosmoCatService service;
