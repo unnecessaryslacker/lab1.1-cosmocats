@@ -21,7 +21,8 @@ databaseChangeLog:
                     unique: true
               - column:
                   name: description
-                  type: TEXT
+                  type: VARCHAR(255)
+
 
         - createTable:
             tableName: products
