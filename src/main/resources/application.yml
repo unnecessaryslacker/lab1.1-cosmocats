@@ -2,7 +2,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/cosmocats
     username: postgres
-    password: Juice999wrld!
+    password:
   jpa:
     hibernate:
       ddl-auto: validate
