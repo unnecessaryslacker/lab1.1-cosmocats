@@ -10,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
@@ -18,24 +19,46 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ProductController.class)
+@WithMockUser
 @Import(ErrorHandler.class)
 class ProductControllerTest {
 
-    @Autowired MockMvc mvc;
-    @MockBean ProductService service;
-    @MockBean ProductMapper mapper;
+    @Autowired
+    MockMvc mvc;
+
+    @MockBean
+    ProductService service;
+
+    @MockBean
+    ProductMapper mapper;
 
     private Product domain(UUID id) {
-        return new Product(id, "Galaxy Snack", "Bar", new BigDecimal("4.20"), "USD", "CAT-001");
+        return new Product(
+                id,
+                "Galaxy Snack",
+                "Bar",
+                new BigDecimal("4.20"),
+                "USD",
+                "CAT-001"
+        );
     }
 
     private ProductDto dto(UUID id) {
-        return new ProductDto(id, "Galaxy Snack", "Bar", new BigDecimal("4.20"), "USD", "CAT-001");
+        return new ProductDto(
+                id,
+                "Galaxy Snack",
+                "Bar",
+                new BigDecimal("4.20"),
+                "USD",
+                "CAT-001"
+        );
     }
 
     @Test
@@ -44,30 +67,33 @@ class ProductControllerTest {
         when(service.list()).thenReturn(List.of(p));
         when(mapper.toDto(p)).thenReturn(dto(p.id()));
 
-        mvc.perform(get("/api/products"))
+        mvc.perform(get("/api/v1/products"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(p.id().toString()));
     }
 
     @Test
-    void get_found_200() throws Exception {
+    void get_200() throws Exception {
         var id = UUID.randomUUID();
         var p = domain(id);
         when(service.get(id)).thenReturn(p);
         when(mapper.toDto(p)).thenReturn(dto(id));
 
-        mvc.perform(get("/api/products/{id}", id))
+        mvc.perform(get("/api/v1/products/{id}", id))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(id.toString()));
     }
 
     @Test
-    void get_missing_404() throws Exception {
+    void get_404() throws Exception {
         var id = UUID.randomUUID();
-        when(service.get(id)).thenThrow(new NoSuchElementException());
+        when(service.get(id)).thenThrow(
+                new NoSuchElementException("Product %s not found".formatted(id))
+        );
 
-        mvc.perform(get("/api/products/{id}", id))
-                .andExpect(status().isNotFound());
+        mvc.perform(get("/api/v1/products/{id}", id))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Product %s not found".formatted(id)));
     }
 
     @Test
@@ -87,7 +113,8 @@ class ProductControllerTest {
         }
         """;
 
-        mvc.perform(post("/api/products")
+        mvc.perform(post("/api/v1/products")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isCreated())
@@ -106,19 +133,41 @@ class ProductControllerTest {
         }
         """;
 
-        mvc.perform(post("/api/products")
+        mvc.perform(post("/api/v1/products")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(bad))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                // это ProblemDetail, а не "message"
+                .andExpect(jsonPath("$.type").value("https://api.cosmocats/errors/validation"))
+                .andExpect(jsonPath("$.detail").value("Request body validation failed"))
+                .andExpect(jsonPath("$.errors").isArray());
     }
 
     @Test
     void update_200() throws Exception {
         var id = UUID.randomUUID();
-        var updated = domain(id);
-        when(mapper.toDomain(any(ProductDto.class))).thenReturn(domain(null));
-        when(service.update(any(UUID.class), any(Product.class))).thenReturn(updated);
-        when(mapper.toDto(updated)).thenReturn(dto(id));
+        var updated = new Product(
+                id,
+                "Star Item",
+                "NewDesc",
+                new BigDecimal("9.99"),
+                "EUR",
+                "CAT-777"
+        );
+
+        when(mapper.toDomain(any(ProductDto.class))).thenReturn(updated);
+        when(service.update(id, updated)).thenReturn(updated);
+        when(mapper.toDto(updated)).thenReturn(
+                new ProductDto(
+                        id,
+                        updated.name(),
+                        updated.description(),
+                        updated.price(),
+                        updated.currency(),
+                        updated.categoryId()
+                )
+        );
 
         String body = """
         {
@@ -130,7 +179,8 @@ class ProductControllerTest {
         }
         """;
 
-        mvc.perform(put("/api/products/{id}", id)
+        mvc.perform(put("/api/v1/products/{id}", id)
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isOk())
@@ -140,7 +190,11 @@ class ProductControllerTest {
     @Test
     void delete_204() throws Exception {
         var id = UUID.randomUUID();
-        mvc.perform(delete("/api/products/{id}", id))
+
+        mvc.perform(delete("/api/v1/products/{id}", id)
+                        .with(csrf()))
                 .andExpect(status().isNoContent());
+
+        verify(service).delete(id);
     }
 }

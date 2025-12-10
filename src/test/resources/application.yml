@@ -20,3 +20,9 @@ feature:
     enabled: true
   kittyProducts:
     enabled: false
+
+security:
+  api-key:
+    header-name: X-API-KEY
+    value: "cosmo-cats-api-key"
+    paths: /api/v1/products/**
