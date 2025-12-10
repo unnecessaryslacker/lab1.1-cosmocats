@@ -36,7 +36,6 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        // фильтруем только те запросы, путь которых совпадает с шаблоном
         String path = request.getRequestURI();
         return !pathMatcher.match(protectedPathPattern, path);
     }
@@ -48,7 +47,6 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        // если уже есть аутентификация (например, через JWT), не трогаем
         Authentication existing = SecurityContextHolder.getContext().getAuthentication();
         if (existing == null || !existing.isAuthenticated()) {
             String apiKey = request.getHeader(headerName);
@@ -58,14 +56,13 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
                         new UsernamePasswordAuthenticationToken(
                                 "api-key-client",
                                 null,
-                                List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                                List.of(new SimpleGrantedAuthority("ROLE_API_CLIENT"))
                         );
 
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
         }
 
-        // не шлём никаких ошибок сами — просто пропускаем дальше
         filterChain.doFilter(request, response);
     }
 }

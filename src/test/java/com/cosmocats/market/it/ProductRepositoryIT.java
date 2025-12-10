@@ -1,5 +1,6 @@
 package com.cosmocats.market.it;
 
+import com.cosmocats.market.config.TestJwtDecoderConfig;
 import com.cosmocats.market.domain.CategoryEntity;
 import com.cosmocats.market.domain.ProductEntity;
 import com.cosmocats.market.repository.CategoryRepository;
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -22,6 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Testcontainers
+@Import(TestJwtDecoderConfig.class)
 class ProductRepositoryIT {
 
     @Container

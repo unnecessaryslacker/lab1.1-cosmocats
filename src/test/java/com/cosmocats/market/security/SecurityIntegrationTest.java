@@ -7,6 +7,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -15,6 +17,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 class SecurityIntegrationTest {
+
+    @MockBean
+    private JwtDecoder jwtDecoder;
 
     @Autowired
     MockMvc mvc;
@@ -42,7 +47,7 @@ class SecurityIntegrationTest {
     void products_withValidJwt_returns200() throws Exception {
         mvc.perform(get("/api/v1/products")
                         .with(jwt()
-                                .authorities(new SimpleGrantedAuthority("ROLE_USER"))))
+                                .authorities(new SimpleGrantedAuthority("SCOPE_cosmo.read"))))
                 .andExpect(status().isOk());
     }
 }
